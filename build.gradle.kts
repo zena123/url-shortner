@@ -31,6 +31,12 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+    // https://mvnrepository.com/artifact/cn.ipokerface/snowflake-id-generator-spring
+    // implementation("cn.ipokerface:snowflake-id-generator-spring:2.7.1")
+    // implementation("com.github.rholder:fauxflake:1.0.0")
+    //implementation("com.littlenb:snowflake:1.0.5")
+
+    implementation("io.seruco.encoding:base62:0.1.3")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.mysql:mysql-connector-j")
