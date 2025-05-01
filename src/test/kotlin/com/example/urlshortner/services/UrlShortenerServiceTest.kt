@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.assertThrows
 import org.springframework.dao.DataIntegrityViolationException
 import sonyflake.core.Sonyflake
+import java.lang.reflect.InvocationTargetException
 import java.net.MalformedURLException
 import java.net.URL
 import java.nio.ByteBuffer
@@ -73,5 +74,48 @@ class UrlShortenerServiceTest {
 
         assertEquals(testShortKey, result.shortKey)
         verify { repository.save(any()) }
+    }
+
+    @Test
+    fun `getLongUrl should throw exception for invalid short key`() {
+        every { repository.findByShortKey(testShortKey) } returns null
+
+        assertThrows<UrlNotFoundException> {
+            service.getLongUrl(testShortKey)
+        }
+    }
+
+    @Test
+    fun `validateUrl should reject invalid URLs`() {
+        val invalidUrl = "not a url"
+
+        val exception = assertThrows<InvocationTargetException> { // invoke(), will wrap the InvalidUrlException but reflection
+            service.javaClass.getDeclaredMethod("validateUrl", String::class.java)
+                .apply { isAccessible = true }
+                .invoke(service, invalidUrl)
+        }
+
+        assertTrue(exception.cause is InvalidUrlException)
+    }
+
+
+    //TODO:check
+    @Test
+    fun `generateShortKey should produce consistent base62 output`() {
+        val realBase62 = Base62.createInstance()
+        val service = UrlShortenerService(repository, realBase62, sonyflake)
+
+        val testId = 123456789L
+
+
+        val result = service.javaClass.getDeclaredMethod("generateShortKey", Long::class.java)
+            .apply { isAccessible = true }
+            .invoke(service, testId) as String
+
+
+        assertTrue(result.length <= 8)
+        assertFalse(result.startsWith("0"))
+        assertTrue(result.matches(Regex("[a-zA-Z0-9]+")))
+
     }
 }
