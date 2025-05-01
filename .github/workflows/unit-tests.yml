@@ -3,8 +3,9 @@ name: Kotlin Unit Tests
 on:
   push:
     branches: [ "**" ]
-  pull_request:
-    branches: [ "master" ]
+#    comment for now
+#  pull_request:
+#    branches: [ "master" ]
 
 jobs:
   test:
