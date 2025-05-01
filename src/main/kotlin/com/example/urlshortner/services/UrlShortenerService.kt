@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service
 import com.example.urlshortner.repositories.UrlMappingRepository
 import io.seruco.encoding.base62.Base62
 import org.springframework.transaction.annotation.Transactional
+import com.example.urlshortner.exceptions.UrlNotFoundException
+import com.example.urlshortner.exceptions.InvalidUrlException
 import sonyflake.core.Sonyflake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.Cacheable
 import java.net.MalformedURLException
 import java.net.URL
 import java.nio.ByteBuffer
@@ -58,6 +61,12 @@ class UrlShortenerService (
 
     }
 
+    @Cacheable("urlMappings", key = "#shortKey")
+    fun getLongUrl(shortKey: String): String {
+        return repository.findByShortKey(shortKey)?.originalUrl
+            ?: throw UrlNotFoundException(shortKey)
+    }
+
     private fun validateUrl(url: String){
         try{
             //Unit function..  check docs
@@ -65,7 +74,7 @@ class UrlShortenerService (
             log.debug("Valid URL: $url")
         }catch (e: MalformedURLException){
             log.error("Malformed URL: $url")
-            throw IllegalArgumentException("Invalid URL: $url", e)
+            throw InvalidUrlException("Malformed URL: $url")
         }
 
     }
