@@ -36,9 +36,12 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.mysql:mysql-connector-j")
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0") // For coroutine
 }
 
 kotlin {
