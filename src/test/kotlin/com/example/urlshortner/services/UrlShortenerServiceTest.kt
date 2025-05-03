@@ -37,17 +37,18 @@ class UrlShortenerServiceTest {
     @MockK
     private lateinit var sonyflake: Sonyflake
 
-    @InjectMockKs
     private lateinit var service: UrlShortenerService
 
     private val testUrl = "https://example.com"
     private val testShortKey = "abc123"
     private val testId = 12345L
+    private val testDomain = "https://short.ly"
 
     @BeforeEach
     fun setup() {
         every { sonyflake.nextId() } returns testId
         every { base62.encode(any<ByteArray>()) } returns testShortKey.toByteArray()
+        service = UrlShortenerService(repository, base62, sonyflake, testDomain)
     }
 
     @Test
@@ -103,7 +104,7 @@ class UrlShortenerServiceTest {
     @Test
     fun `generateShortKey should produce consistent base62 output`() {
         val realBase62 = Base62.createInstance()
-        val service = UrlShortenerService(repository, realBase62, sonyflake)
+        val service = UrlShortenerService(repository, realBase62, sonyflake, testDomain)
 
         val testId = 123456789L
 
