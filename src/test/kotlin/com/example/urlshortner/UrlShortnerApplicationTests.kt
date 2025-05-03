@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 
 @SpringBootTest
-@Disabled("Ignoring temporarily") // TODO:resolve
+@Disabled("ignore")
 class UrlShortnerApplicationTests {
 
     @Test

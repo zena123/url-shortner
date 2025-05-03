@@ -1,14 +1,15 @@
 FROM gradle:8.6-jdk17 AS build
 WORKDIR /app
-COPY . .
 
-# First build without tests to cache dependencies
-RUN gradle build -x test --no-daemon
+COPY build.gradle.kts settings.gradle.kts ./
+COPY gradle ./gradle
 
-# Then run tests separately (with test database)
+RUN gradle build -x test --no-daemon || true
+
+COPY src ./src
+
 RUN gradle test --no-daemon
 
-# Final build
 RUN gradle bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre

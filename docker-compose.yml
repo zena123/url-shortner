@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -10,6 +12,7 @@ services:
       SPRING_DATASOURCE_USERNAME: springstudent
       SPRING_DATASOURCE_PASSWORD: springstudent
       SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       mysql:
         condition: service_healthy
