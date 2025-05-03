@@ -15,6 +15,7 @@ import com.example.urlshortner.exceptions.InvalidUrlException
 import sonyflake.core.Sonyflake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import java.net.MalformedURLException
 import java.net.URL
@@ -25,9 +26,9 @@ import java.nio.ByteBuffer
 class UrlShortenerService (
     private val repository: UrlMappingRepository,
     private val base62: Base62,
-    private val sonyflake: Sonyflake
+    private val sonyflake: Sonyflake,
+    @Value("\${app.domain}") private val domain: String
 ){
-    private val domain: String = "http://localhost:8080"  //TODO:Configure
     private val log: Logger = LoggerFactory.getLogger(UrlShortenerService::class.java)
 
 

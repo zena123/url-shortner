@@ -30,7 +30,7 @@ class UrlShortenerController(
             ApiResponse(responseCode = "400", description = "Invalid URL format")],
         )
     @PostMapping
-    private fun createShortUrl(
+    fun createShortUrl(
         @RequestBody shortUrlRequest: ShortUrlRequest
     ): ResponseEntity<ShortUrlResponse>
     {
