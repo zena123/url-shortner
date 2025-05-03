@@ -41,10 +41,10 @@ class UrlShortenerService (
         }
         val id = sonyflake.nextId()
         val shortKey = generateShortKey(id)
-        val mappingurl = UrlMapping(id = id, shortKey = shortKey, originalUrl = request.longUrl)
+        val urlMapping = UrlMapping(id = id, shortKey = shortKey, originalUrl = request.longUrl)
         return try {
-            log.info(mappingurl.toString())
-            val savedObj = repository.save(mappingurl)
+            log.info("Saving object: $urlMapping")
+            val savedObj = repository.save(urlMapping)
             log.info("Successfully saved mapping with short URL: ${savedObj.shortKey}")
             toResponse(savedObj)
 
@@ -68,9 +68,8 @@ class UrlShortenerService (
             ?: throw UrlNotFoundException(shortKey)
     }
 
-    private fun validateUrl(url: String){
+    internal fun validateUrl(url: String){
         try{
-            //Unit function..  check docs
             URL(url)
             log.debug("Valid URL: $url")
         }catch (e: MalformedURLException){
@@ -85,7 +84,7 @@ class UrlShortenerService (
             shortUrl = "$domain/${mapping.shortKey}"
         )
     }
-    private fun generateShortKey(id: Long): String {
+    internal fun generateShortKey(id: Long): String {
         return try {
             log.debug("Generating shortkey: $id")
             val buffer = ByteBuffer.allocate(8).putLong(id)
@@ -96,11 +95,4 @@ class UrlShortenerService (
             throw RuntimeException("Failed to generate short key for id: $id", e)
         }
     }
-
-
-
-
-
-
-
 }

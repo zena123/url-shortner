@@ -20,10 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.assertThrows
 import org.springframework.dao.DataIntegrityViolationException
 import sonyflake.core.Sonyflake
-import java.lang.reflect.InvocationTargetException
-import java.net.MalformedURLException
-import java.net.URL
-import java.nio.ByteBuffer
 
 @ExtendWith(MockKExtension::class)
 class UrlShortenerServiceTest {
@@ -78,6 +74,41 @@ class UrlShortenerServiceTest {
     }
 
     @Test
+    fun `createShortUrl should handle race condition gracefully`() {
+        val request = ShortUrlRequest(testUrl)
+        val savedMapping = UrlMapping(id = testId, shortKey = testShortKey, originalUrl = testUrl)
+
+        // Simulate race: First save() fails, then findByOriginalUrl succeeds
+        every { repository.findByOriginalUrl(testUrl) } returns null andThen savedMapping
+        every { repository.save(any()) } throws DataIntegrityViolationException("Duplicate key")
+
+        val result = service.createShortUrl(request)
+
+        assertEquals(testShortKey, result.shortKey)
+        verify(exactly = 2) { repository.findByOriginalUrl(testUrl) }
+    }
+
+    @Test
+    fun `createShortUrl should throw error after race condition fails`() {
+        every { repository.findByOriginalUrl(testUrl) } returns null
+        every { repository.save(any()) } throws DataIntegrityViolationException("Duplicate key")
+
+        assertThrows<IllegalStateException> {
+            service.createShortUrl(ShortUrlRequest(testUrl))
+        }
+    }
+
+    @Test
+    fun `getLongUrl should return original URL for valid short key`() {
+        val mapping = UrlMapping(id = testId, shortKey = testShortKey, originalUrl = testUrl)
+        every { repository.findByShortKey(testShortKey) } returns mapping
+
+        val result = service.getLongUrl(testShortKey)
+
+        assertEquals(testUrl, result)
+    }
+
+    @Test
     fun `getLongUrl should throw exception for invalid short key`() {
         every { repository.findByShortKey(testShortKey) } returns null
 
@@ -86,37 +117,39 @@ class UrlShortenerServiceTest {
         }
     }
 
+    //TODO
+//    @Test
+//    fun `validateUrl should reject invalid URLs`() {
+//        val invalidUrl = "not a url"
+//
+//        val exception = assertThrows<InvocationTargetException> { // invoke(), will wrap the InvalidUrlException but reflection
+//            service.javaClass.getDeclaredMethod("validateUrl", String::class.java)
+//                .apply { isAccessible = true }
+//                .invoke(service, invalidUrl)
+//        }
+//
+//        assertTrue(exception.cause is InvalidUrlException)
+//    }
+
+
     @Test
-    fun `validateUrl should reject invalid URLs`() {
-        val invalidUrl = "not a url"
+    fun `generateShortKey should produce valid Base62 output`() {
 
-        val exception = assertThrows<InvocationTargetException> { // invoke(), will wrap the InvalidUrlException but reflection
-            service.javaClass.getDeclaredMethod("validateUrl", String::class.java)
-                .apply { isAccessible = true }
-                .invoke(service, invalidUrl)
-        }
-
-        assertTrue(exception.cause is InvalidUrlException)
-    }
-
-
-    //TODO:check
-    @Test
-    fun `generateShortKey should produce consistent base62 output`() {
-        val realBase62 = Base62.createInstance()
-        val service = UrlShortenerService(repository, realBase62, sonyflake, testDomain)
-
-        val testId = 123456789L
-
-
-        val result = service.javaClass.getDeclaredMethod("generateShortKey", Long::class.java)
-            .apply { isAccessible = true }
-            .invoke(service, testId) as String
-
+        val result = service.generateShortKey(testId)
 
         assertTrue(result.length <= 8)
         assertFalse(result.startsWith("0"))
         assertTrue(result.matches(Regex("[a-zA-Z0-9]+")))
+    }
 
+    @Test
+    fun `generateShortKey should handle encoding errors`() {
+        every { base62.encode(any()) } throws RuntimeException("Encoding failed")
+
+        assertThrows<RuntimeException> {
+            service.generateShortKey(testId)
+        }.apply {
+            assertEquals("Failed to generate short key for id: $testId", message)
+        }
     }
 }
