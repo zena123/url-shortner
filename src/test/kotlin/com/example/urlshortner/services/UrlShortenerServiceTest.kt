@@ -2,13 +2,11 @@ package com.example.urlshortner.services
 
 
 import com.example.urlshortner.dtos.ShortUrlRequest
-import com.example.urlshortner.dtos.ShortUrlResponse
 import com.example.urlshortner.entities.UrlMapping
 import com.example.urlshortner.exceptions.InvalidUrlException
 import com.example.urlshortner.exceptions.UrlNotFoundException
 import com.example.urlshortner.repositories.UrlMappingRepository
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
@@ -117,19 +115,21 @@ class UrlShortenerServiceTest {
         }
     }
 
-    //TODO
-//    @Test
-//    fun `validateUrl should reject invalid URLs`() {
-//        val invalidUrl = "not a url"
-//
-//        val exception = assertThrows<InvocationTargetException> { // invoke(), will wrap the InvalidUrlException but reflection
-//            service.javaClass.getDeclaredMethod("validateUrl", String::class.java)
-//                .apply { isAccessible = true }
-//                .invoke(service, invalidUrl)
-//        }
-//
-//        assertTrue(exception.cause is InvalidUrlException)
-//    }
+    @Test
+    fun `validateUrl should not throw for a valid URL`() {
+        assertDoesNotThrow {
+            service.validateUrl("https://example.com")
+        }
+    }
+
+    @Test
+    fun `validateUrl should throw InvalidUrlException for an invalid URL`() {
+        val invalidUrl = "ht!tp://bad_url"
+        val exception = assertThrows(InvalidUrlException::class.java) {
+            service.validateUrl(invalidUrl)
+        }
+        assertTrue(exception.message!!.contains("Malformed URL"))
+    }
 
 
     @Test
