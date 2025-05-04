@@ -16,8 +16,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    networks:
-      - app-network
 
   mysql:
     image: mysql:8.0
@@ -36,8 +34,6 @@ services:
       retries: 10
     volumes:
       - mysql-data:/var/lib/mysql
-    networks:
-      - app-network
 
 volumes:
   mysql-data:
