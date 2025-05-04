@@ -71,10 +71,22 @@ json
 - install docker 
 - navigate to project root then run:
 ```docker compose up --build```
-
 ### Access Swagger UI:
 - navigate to:
-```http://localhost:8080/swagger-ui.html```
+  ```http://localhost:8080/swagger-ui.html```
+
+#### To run the project locally:
+- connect to MYSQL database and update DB connection in application properties
+- this project uses java 17, make sure it's installed
+- run : 
+```
+./gradlew bootRun
+```
+
+#### Run tests: 
+```
+./gradlew test
+```
 
 ### Configure base domain:
 - to configure the short url domain, go to application.properties and change:
