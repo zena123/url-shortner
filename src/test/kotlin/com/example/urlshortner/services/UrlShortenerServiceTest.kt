@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.assertThrows
 import org.springframework.dao.DataIntegrityViolationException
 import sonyflake.core.Sonyflake
+import org.apache.commons.validator.routines.UrlValidator
 
 @ExtendWith(MockKExtension::class)
 class UrlShortenerServiceTest {
@@ -31,6 +32,8 @@ class UrlShortenerServiceTest {
     @MockK
     private lateinit var sonyflake: Sonyflake
 
+    @MockK
+    private lateinit var urlValidator: UrlValidator
     private lateinit var service: UrlShortenerService
 
     private val testUrl = "https://example.com"
@@ -117,8 +120,10 @@ class UrlShortenerServiceTest {
 
     @Test
     fun `validateUrl should not throw for a valid URL`() {
+        every { urlValidator.isValid(testUrl) } returns true
+
         assertDoesNotThrow {
-            service.validateUrl("https://example.com")
+            service.validateUrl(testUrl)
         }
     }
 
@@ -128,9 +133,8 @@ class UrlShortenerServiceTest {
         val exception = assertThrows(InvalidUrlException::class.java) {
             service.validateUrl(invalidUrl)
         }
-        assertTrue(exception.message!!.contains("Malformed URL"))
+        assertEquals("Invalid URL: $invalidUrl", exception.message)
     }
-
 
     @Test
     fun `generateShortKey should produce valid Base62 output`() {

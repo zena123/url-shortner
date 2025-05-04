@@ -33,6 +33,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.6")
     implementation("io.seruco.encoding:base62:0.1.3")
+    implementation("commons-validator:commons-validator:1.9.0")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.mysql:mysql-connector-j")

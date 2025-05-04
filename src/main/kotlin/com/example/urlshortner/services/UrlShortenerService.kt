@@ -1,12 +1,10 @@
 package com.example.urlshortner.services
 
-
 import com.example.urlshortner.dtos.ShortUrlRequest
 import com.example.urlshortner.dtos.ShortUrlResponse
 import com.example.urlshortner.entities.UrlMapping
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
-
 import com.example.urlshortner.repositories.UrlMappingRepository
 import io.seruco.encoding.base62.Base62
 import org.springframework.transaction.annotation.Transactional
@@ -17,10 +15,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
-import java.net.MalformedURLException
-import java.net.URL
+import org.apache.commons.validator.routines.UrlValidator
 import java.nio.ByteBuffer
-
 
 @Service
 class UrlShortenerService (
@@ -30,7 +26,7 @@ class UrlShortenerService (
     @Value("\${app.domain}") private val domain: String
 ){
     private val log: Logger = LoggerFactory.getLogger(UrlShortenerService::class.java)
-
+    private val urlValidator = UrlValidator(arrayOf("http", "https"), UrlValidator.ALLOW_LOCAL_URLS)
 
     @Transactional
     fun createShortUrl(request: ShortUrlRequest): ShortUrlResponse {
@@ -47,8 +43,7 @@ class UrlShortenerService (
             val savedObj = repository.save(urlMapping)
             log.info("Successfully saved mapping with short URL: ${savedObj.shortKey}")
             toResponse(savedObj)
-
-        }catch (e: DataIntegrityViolationException) {
+        } catch (e: DataIntegrityViolationException) {
             log.warn("Possible race condition while saving mapping for URL: ${request.longUrl}", e)
             val fallback = repository.findByOriginalUrl(request.longUrl)
             return if (fallback != null) {
@@ -59,7 +54,6 @@ class UrlShortenerService (
                 throw IllegalStateException("Failed to save or recover mapping for URL: ${request.longUrl}")
             }
         }
-
     }
 
     @Cacheable("urlMappings", key = "#shortKey")
@@ -68,22 +62,21 @@ class UrlShortenerService (
             ?: throw UrlNotFoundException(shortKey)
     }
 
-    internal fun validateUrl(url: String){
-        try{
-            URL(url)
-            log.debug("Valid URL: $url")
-        }catch (e: MalformedURLException){
-            log.error("Malformed URL: $url")
-            throw InvalidUrlException("Malformed URL: $url")
+    internal fun validateUrl(url: String) {
+        if (!urlValidator.isValid(url)) {
+            log.error("Invalid URL: $url")
+            throw InvalidUrlException(url)
         }
-
+        log.debug("Valid URL: $url")
     }
+
     private fun toResponse(mapping: UrlMapping): ShortUrlResponse {
         return ShortUrlResponse(
             shortKey = mapping.shortKey,
             shortUrl = "$domain/${mapping.shortKey}"
         )
     }
+
     internal fun generateShortKey(id: Long): String {
         return try {
             log.debug("Generating shortkey: $id")
