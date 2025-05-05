@@ -93,3 +93,9 @@ json
 - to configure the short url domain, go to application.properties and change:
 
 ```app.domain= <Your Domain>```
+
+
+### Phase2 and improvements: 
+
+ - add **Redis** to cache frequently requested Urls
+ - Rate Limiting
