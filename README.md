@@ -20,7 +20,8 @@ A production-ready URL shortening service built with Spring Boot (Kotlin) that c
 - **Cache**: Spring Cache abstraction
 - **ID Generation**: Sonyflake
 - **Encoding**: Base62 for short code generation
-- **API Docs**: OpenAPI 3.0 (Swagger)
+- **UrlValidation**: Apache Commons Validator
+- **API Docs**: OpenAPI(Swagger)
 
 ## API Endpoints
 
