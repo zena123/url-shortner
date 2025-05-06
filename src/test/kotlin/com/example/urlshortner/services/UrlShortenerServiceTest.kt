@@ -34,7 +34,7 @@ class UrlShortenerServiceTest {
 
     @MockK
     private lateinit var urlValidator: UrlValidator
-    private lateinit var service: UrlShortenerService
+    private lateinit var service: UrlShortenerServiceImp
 
     private val testUrl = "https://example.com"
     private val testShortKey = "abc123"
@@ -45,7 +45,7 @@ class UrlShortenerServiceTest {
     fun setup() {
         every { sonyflake.nextId() } returns testId
         every { base62.encode(any<ByteArray>()) } returns testShortKey.toByteArray()
-        service = UrlShortenerService(repository, base62, sonyflake, testDomain)
+        service = UrlShortenerServiceImp(repository, base62, sonyflake, testDomain)
     }
 
     @Test

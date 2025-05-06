@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import com.example.urlshortner.services.UrlShortenerService
+import com.example.urlshortner.services.UrlShortenerServiceImp
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -16,7 +16,7 @@ import java.net.URI
 @RequestMapping("/api/v1/urls")
 @Tag(name = "URL Shortener", description = "API for shortening URLs")
 class UrlShortenerController(
-    private val urlShortenerService: UrlShortenerService
+    private val urlShortenerService: UrlShortenerServiceImp
 )
 {
     @Operation(

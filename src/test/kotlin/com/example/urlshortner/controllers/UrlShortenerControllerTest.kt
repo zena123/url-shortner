@@ -3,7 +3,7 @@ package com.example.urlshortner.controllers
 
 import com.example.urlshortner.dtos.ShortUrlRequest
 import com.example.urlshortner.dtos.ShortUrlResponse
-import com.example.urlshortner.services.UrlShortenerService
+import com.example.urlshortner.services.UrlShortenerServiceImp
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -12,7 +12,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import java.net.URI
 import kotlin.test.assertEquals
 
@@ -20,7 +19,7 @@ import kotlin.test.assertEquals
 class UrlShortenerControllerTest {
 
     @MockK
-    private lateinit var urlShortenerService: UrlShortenerService
+    private lateinit var urlShortenerService: UrlShortenerServiceImp
 
     @InjectMockKs
     private lateinit var controller: UrlShortenerController
