@@ -28,7 +28,6 @@ class UrlShortenerServiceImp (
     private val log: Logger = LoggerFactory.getLogger(UrlShortenerServiceImp::class.java)
     private val urlValidator = UrlValidator(arrayOf("http", "https"), UrlValidator.ALLOW_LOCAL_URLS)
 
-    @Override
     @Transactional
     override fun createShortUrl(request: ShortUrlRequest): ShortUrlResponse {
         validateUrl(request.longUrl)
@@ -57,7 +56,6 @@ class UrlShortenerServiceImp (
         }
     }
 
-    @Override
     @Cacheable("urlMappings", key = "#shortKey")
     override fun getLongUrl(shortKey: String): String {
         return repository.findByShortKey(shortKey)?.originalUrl
